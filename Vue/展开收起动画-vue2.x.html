@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>展开收起动画</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.10/dist/vue.js"></script>
+  <style>
+    .collapse {
+      
+    }
+    .collapse-title {
+      padding: 8px 12px;
+      font-size: 12px;
+      background-color: #b1b1b1;
+      cursor: pointer;
+    }
+    /* 
+      通过改变外层容器的尺寸以及溢出隐藏实现展开收起。
+      这里容器需要两个
+      - 因为边框和边距也会影响盒子在页面上所占的位置，为了实现只需要控制width或height属性来收起展开，所以外层容器不能有边框和边距。
+      - 需要设置边框和边距的样式可以由内层容器添加，如此撑开外层容器，这样外层容器的宽高就可以包括所有跟占位有关的尺寸，样式也能得到保证。
+    */
+    .collapse-content-wrap {
+      overflow: hidden;
+      transition: all .3s;
+    }
+    .collapse-content { 
+      padding: 12px;
+      background-color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="collapse">
+      <div class="collapse-title" @click="handleOpen">
+        点击我收起/展开
+      </div>
+      <div
+        class="collapse-content-wrap"
+        ref="collapseContent"
+        :style="{
+          'max-height': (selfOpen ? sH : 0) + 'px'
+        }"
+      >
+        <div class="collapse-content">
+          内容
+          <br />
+          内容
+          <br />
+          内容
+          <br />
+          内容
+          <br />
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const app = new Vue({
+      el: '#app',
+      data() {
+        return {
+          selfOpen: true,
+          sH: undefined
+        }
+      },
+      methods: {
+        handleOpen() {
+          this.selfOpen = !this.selfOpen;
+        },
+      },
+      mounted() {
+          // 如果内容是异步请求获取的，初次挂载DOM元素获取高度为0，赋无效值让DOM元素自适应高度
+          this.sH = this.$refs.collapseContent?.scrollHeight || undefined;
+      },
+      // updated() { // 内容会动态改变时，在updated中获取最新高度
+      //   this.sH = this.$refs.collapseContent?.scrollHeight;
+      // }
+    })
+  </script>
+</body>
+</html>

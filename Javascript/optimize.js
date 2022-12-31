@@ -57,3 +57,47 @@ export function firstPromise(callback) {
     return p || (p = callback.apply(this, args).finally(() => (p = null)))
   }
 }
+
+/**
+ * 限制重复请求 - 以最后一次为准 - 依赖axios
+ * @param {promiseFunction} callback - 返回 Promise 实例的函数
+ * @returns {Function} - 新函数
+ */
+import axios from 'axios'
+export function lastPromise(callback) {
+  const CancelToken = axios.CancelToken
+  let source = null
+  return function(...args) {
+    // 如果已存在实例则取消，并触发新的请求
+    if (source) {
+      source.cancel()
+    }
+    source = CancelToken.source()
+    return callback(...args, source).then((res) => {
+      source = null
+      return res
+    })
+  }
+}
+/**
+ * 限制重复请求 - 以最后一次为准 - 基于Promise.race
+ * @param {promiseFunction} callback - 返回 Promise 实例的函数
+ * @returns {Function} - 新函数
+ */
+export function lastPromise2(callback) {
+  let cancelPromise = null
+  let cancelToken = null
+  return function(...args) {
+    // 如果已存在实例则取消，并触发新的请求
+    if (cancelToken) {
+      cancelToken('cancelPromise')
+    }
+    cancelPromise = new Promise((resolve, reject) => {
+      cancelToken = reject
+    })
+    return Promise.race([cancelPromise, callback(...args).finally(() => {
+      cancelPromise = null
+      cancelToken = null
+    })])
+  }
+}

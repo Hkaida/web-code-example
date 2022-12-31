@@ -56,3 +56,36 @@ export const recursionSome = (tree, callback) => {
     func(data)
   })
 }
+
+/**
+ * 查找节点对象
+ * @param { Array } tree 树形结构的数组
+ * @param { Function } func 节点执行函数
+ * @param { String } children 子数组名称
+ */
+export function treeFind (tree, func, children = 'children') {
+  for (const data of tree) {
+    if (func(data)) return data
+    if (data[children]) {
+      const res = this.treeFind(data[children], func)
+      if (res) return res
+    }
+  }
+  return null
+}
+/**
+ * 过滤节点，包含符合条件的子节点，该父节点也会被保留
+ * @param { Array } tree 树形结构的数组
+ * @param { Function } func 节点执行函数
+ * @param { String } children 子数组名称
+ */
+ export function treeFilter(tree, func, children = 'children') {
+  // 使用map复制一下节点，避免修改到原树
+  return tree
+    .map((node) => ({ ...node }))
+    .filter((node) => {
+      node[children] =
+        node[children] && this.treeFilter(node[children], func)
+      return func(node) || (node[children] && node[children].length)
+    })
+}

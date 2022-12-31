@@ -109,7 +109,7 @@ export const numInputFormat = (
  * 1 G = 1073741824 B
  * 1 MB = 1048576 B
  * 1 KB = 1024 B
- * @param {string} fileSize - 文件大小
+ * @param {String} fileSize - 文件大小
  * @param {Number} precision 小数精度（保留几位小数）
  */
  export const sizeTransform = (fileSize, precision = 0) => {
@@ -134,6 +134,31 @@ export const numInputFormat = (
   }
   return result;
 };
+
+/**
+ * 格式化文件大小
+ * @param {string | number} bytes 文件大小file.size
+ * @param {number} precision 保留的小数位
+ * @returns 例如：20MB
+ */
+ export function formatFileSize(bytes, precision = 0) {
+  if (!bytes) {
+    return '0B'
+  }
+  if (precision < 0) {
+    precision = 0
+  }
+
+  const unitArr = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+  let index = 0
+  index = Math.floor(Math.log(parseFloat(bytes)) / Math.log(1024))
+
+  let size = parseFloat(bytes) / Math.pow(1024, index)
+  size = size.toFixed(precision)
+  
+  return size + unitArr[index]
+}
 
 /**
  * 复制文字到剪切板
